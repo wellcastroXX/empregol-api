@@ -15,6 +15,8 @@ import { seasonStatsRouter } from './modules/season-stats/season-stats.router';
 import { athleteVideoRouter } from './modules/athlete-video/athlete-video.router';
 import { conversationRouter } from './modules/conversation/conversation.router';
 import { messageRouter } from './modules/message/message.router';
+import { exploreRouter } from './modules/explore/explore.router';
+import { favoriteRouter } from './modules/favorite/favorite.router';
 
 const app = express();
 
@@ -50,6 +52,8 @@ app.use('/athletes/me/media',        athleteVideoRouter);
 // ─── Social / engagement ──────────────────────────────────────────────────────
 app.use('/proposals',    proposalRouter);
 app.use('/conversations', conversationRouter);
+app.use('/explore',      exploreRouter);
+app.use('/favorites',    favoriteRouter);
 
 // Nested messages under conversations
 app.use('/conversations/:id/messages', messageRouter);
