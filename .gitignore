@@ -1,0 +1,14 @@
+node_modules/
+dist/
+
+# Variáveis de ambiente (NUNCA commitar segredos)
+.env
+.env.*
+!.env.production.example
+
+# Dados do PostgreSQL (bind mount no servidor)
+pgdata/
+
+# Logs / OS
+*.log
+.DS_Store
