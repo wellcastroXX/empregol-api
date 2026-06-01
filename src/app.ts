@@ -1,0 +1,52 @@
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+
+import { errorMiddleware } from './shared/middleware/error.middleware';
+import { authAthleteRouter } from './modules/auth/athlete/auth-athlete.router';
+import { authContractorRouter } from './modules/auth/contractor/auth-contractor.router';
+import { athleteRouter } from './modules/athlete/athlete.router';
+import { contractorRouter } from './modules/contractor/contractor.router';
+import { proposalRouter } from './modules/proposal/proposal.router';
+import { dashboardRouter } from './modules/dashboard/dashboard.router';
+import { seasonStatsRouter } from './modules/season-stats/season-stats.router';
+import { athleteVideoRouter } from './modules/athlete-video/athlete-video.router';
+
+const app = express();
+
+// ─── Security ────────────────────────────────────────────────────────────────
+app.use(helmet());
+app.use(cors({ origin: process.env.CORS_ORIGIN ?? '*', credentials: true }));
+
+// ─── Rate limiting ────────────────────────────────────────────────────────────
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false });
+const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200, standardHeaders: true, legacyHeaders: false });
+
+app.use(globalLimiter);
+app.use('/auth', authLimiter);
+
+// ─── Body parsing ─────────────────────────────────────────────────────────────
+app.use(express.json({ limit: '10kb' }));
+
+// ─── Health check ─────────────────────────────────────────────────────────────
+app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
+
+// ─── Routes ───────────────────────────────────────────────────────────────────
+app.use('/auth/athletes', authAthleteRouter);
+app.use('/auth/contractors', authContractorRouter);
+app.use('/athletes', athleteRouter);
+app.use('/contractors', contractorRouter);
+app.use('/proposals', proposalRouter);
+app.use('/dashboard', dashboardRouter);
+app.use('/athletes/me/season-stats', seasonStatsRouter);
+app.use('/athletes/me/videos', athleteVideoRouter);
+
+// ─── 404 ──────────────────────────────────────────────────────────────────────
+app.use((_req, res) => res.status(404).json({ status: 'error', code: 'NOT_FOUND', message: 'Rota não encontrada' }));
+
+// ─── Error handler ────────────────────────────────────────────────────────────
+app.use(errorMiddleware);
+
+export { app };
