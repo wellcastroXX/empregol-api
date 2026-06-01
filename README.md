@@ -20,7 +20,7 @@ Tudo roda em container: PostgreSQL + API. Os dados do banco ficam em `./pgdata`
 
 ```bash
 # no servidor, dentro do ponto de montagem do SSD (ex: /mnt/kingston)
-cd /mnt/kingston
+cd /project/empregol/backend
 git clone https://github.com/wellcastroXX/empregol-api.git
 cd empregol-api
 ```
