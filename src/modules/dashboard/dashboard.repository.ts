@@ -6,7 +6,7 @@ export class DashboardRepository {
       where: { userId },
       include: {
         user: { select: { emailVerified: true, phoneVerified: true } },
-        videos: true,
+        media: true,
         seasonStats: { orderBy: { year: 'desc' }, take: 1 },
       },
     });

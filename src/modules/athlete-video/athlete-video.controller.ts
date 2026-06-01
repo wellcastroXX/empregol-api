@@ -13,7 +13,7 @@ export class AthleteVideoController {
 
   list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const data = await this.service.list(req.user!.id);
+      const data = await this.service.list(req.user!.id, req.query.type as string);
       res.json({ status: 'success', data });
     } catch (err) { next(err); }
   };

@@ -13,6 +13,8 @@ import { proposalRouter } from './modules/proposal/proposal.router';
 import { dashboardRouter } from './modules/dashboard/dashboard.router';
 import { seasonStatsRouter } from './modules/season-stats/season-stats.router';
 import { athleteVideoRouter } from './modules/athlete-video/athlete-video.router';
+import { conversationRouter } from './modules/conversation/conversation.router';
+import { messageRouter } from './modules/message/message.router';
 
 const app = express();
 
@@ -22,7 +24,7 @@ app.use(cors({ origin: process.env.CORS_ORIGIN ?? '*', credentials: true }));
 
 // ─── Rate limiting ────────────────────────────────────────────────────────────
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false });
-const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200, standardHeaders: true, legacyHeaders: false });
+const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false });
 
 app.use(globalLimiter);
 app.use('/auth', authLimiter);
@@ -30,18 +32,30 @@ app.use('/auth', authLimiter);
 // ─── Body parsing ─────────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10kb' }));
 
-// ─── Health check ─────────────────────────────────────────────────────────────
+// ─── Health ───────────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
-// ─── Routes ───────────────────────────────────────────────────────────────────
-app.use('/auth/athletes', authAthleteRouter);
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+app.use('/auth/athletes',    authAthleteRouter);
 app.use('/auth/contractors', authContractorRouter);
-app.use('/athletes', athleteRouter);
-app.use('/contractors', contractorRouter);
-app.use('/proposals', proposalRouter);
-app.use('/dashboard', dashboardRouter);
+
+// ─── Profiles ─────────────────────────────────────────────────────────────────
+app.use('/athletes',          athleteRouter);
+app.use('/contractors',       contractorRouter);
+
+// ─── Athlete sub-resources ────────────────────────────────────────────────────
 app.use('/athletes/me/season-stats', seasonStatsRouter);
-app.use('/athletes/me/videos', athleteVideoRouter);
+app.use('/athletes/me/media',        athleteVideoRouter);
+
+// ─── Social / engagement ──────────────────────────────────────────────────────
+app.use('/proposals',    proposalRouter);
+app.use('/conversations', conversationRouter);
+
+// Nested messages under conversations
+app.use('/conversations/:id/messages', messageRouter);
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+app.use('/dashboard', dashboardRouter);
 
 // ─── 404 ──────────────────────────────────────────────────────────────────────
 app.use((_req, res) => res.status(404).json({ status: 'error', code: 'NOT_FOUND', message: 'Rota não encontrada' }));
