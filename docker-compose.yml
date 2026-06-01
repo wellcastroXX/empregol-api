@@ -1,3 +1,5 @@
+name: empregol
+
 services:
   db:
     image: postgres:16-alpine
@@ -37,8 +39,9 @@ services:
       PORT: 3000
       NODE_ENV: production
     ports:
-      # Expõe só no localhost do servidor; o domínio público passa pelo reverse proxy
-      - "127.0.0.1:3000:3000"
+      # Exposto na LAN para o frontend de dev acessar (http://IP_DO_SERVIDOR:3000).
+      # Para publicar via domínio público, prefira colocar atrás do Traefik.
+      - "${API_PORT:-3000}:3000"
     networks:
       - empregol-net
 
