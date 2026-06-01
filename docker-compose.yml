@@ -39,12 +39,21 @@ services:
       PORT: 3000
       NODE_ENV: production
     ports:
-      # Exposto na LAN para o frontend de dev acessar (http://IP_DO_SERVIDOR:3000).
-      # Para publicar via domínio público, prefira colocar atrás do Traefik.
+      # Mantido para acesso direto na LAN (http://192.168.3.197:3000), além do domínio público.
       - "${API_PORT:-3000}:3000"
     networks:
       - empregol-net
+      - proxy
+    labels:
+      # Publicação via Traefik + Cloudflare Tunnel (TLS no edge da Cloudflare, HTTP no entrypoint web)
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.empregol-api.entrypoints=web"
+      - "traefik.http.routers.empregol-api.rule=Host(`${API_DOMAIN:-api.empregolstartup.com.br}`)"
+      - "traefik.http.services.empregol-api.loadbalancer.server.port=3000"
 
 networks:
   empregol-net:
     driver: bridge
+  proxy:
+    external: true
