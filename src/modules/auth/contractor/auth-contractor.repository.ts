@@ -23,7 +23,8 @@ export class AuthContractorRepository {
   }
 
   async createContractorWithUser(data: RegisterContractorDTO & { hashedPassword: string }) {
-    const { email, hashedPassword, type, ...contractorFields } = data;
+    // `password` (texto puro) não é coluna de Contractor — remover do nested create.
+    const { email, password: _password, hashedPassword, type, ...contractorFields } = data;
     const role: UserRole = type === 'AGENT' ? 'AGENT' : 'CLUB';
 
     return prisma.user.create({

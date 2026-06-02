@@ -27,7 +27,8 @@ export class AuthAthleteRepository {
   }
 
   async createAthleteWithUser(data: RegisterAthleteDTO & { hashedPassword: string }) {
-    const { email, hashedPassword, ...athleteData } = data;
+    // `password` (texto puro) e `videoUrl` não são colunas de Athlete — remover do nested create.
+    const { email, password: _password, hashedPassword, videoUrl: _videoUrl, ...athleteData } = data;
     return prisma.user.create({
       data: {
         email,
