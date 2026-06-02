@@ -1,5 +1,7 @@
 node_modules
 dist
+pgdata
+*.bak
 .git
 .gitignore
 .env
