@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import { errorMiddleware } from './shared/middleware/error.middleware';
 import { authAthleteRouter } from './modules/auth/athlete/auth-athlete.router';
 import { authContractorRouter } from './modules/auth/contractor/auth-contractor.router';
+import { authSocialRouter } from './modules/auth/social/auth-social.router';
 import { athleteRouter } from './modules/athlete/athlete.router';
 import { contractorRouter } from './modules/contractor/contractor.router';
 import { proposalRouter } from './modules/proposal/proposal.router';
@@ -40,6 +41,7 @@ app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date()
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 app.use('/auth/athletes',    authAthleteRouter);
 app.use('/auth/contractors', authContractorRouter);
+app.use('/auth/social',      authSocialRouter);
 
 // ─── Profiles ─────────────────────────────────────────────────────────────────
 app.use('/athletes',          athleteRouter);

@@ -11,6 +11,12 @@ const envSchema = z.object({
   EMAIL_FROM: z.string().email(),
   PORT: z.coerce.number().default(3000),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+
+  // Firebase Admin (login social) — informe UM dos dois:
+  //  • FIREBASE_SERVICE_ACCOUNT       → JSON do service account inline (recomendado em prod/secret)
+  //  • FIREBASE_SERVICE_ACCOUNT_PATH  → caminho para o arquivo .json no servidor
+  FIREBASE_SERVICE_ACCOUNT: z.string().optional(),
+  FIREBASE_SERVICE_ACCOUNT_PATH: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

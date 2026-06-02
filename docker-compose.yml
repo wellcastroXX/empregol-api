@@ -36,6 +36,8 @@ services:
       RESEND_API_KEY: ${RESEND_API_KEY}
       EMAIL_FROM: ${EMAIL_FROM}
       CORS_ORIGIN: ${CORS_ORIGIN:-*}
+      # Login social (Firebase Admin) — JSON do service account inline no .env do servidor
+      FIREBASE_SERVICE_ACCOUNT: ${FIREBASE_SERVICE_ACCOUNT:-}
       PORT: 3000
       NODE_ENV: production
     ports:
