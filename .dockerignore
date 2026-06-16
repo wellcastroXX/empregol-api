@@ -1,6 +1,7 @@
 node_modules
 dist
 pgdata
+uploads
 *.bak
 .git
 .gitignore

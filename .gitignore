@@ -9,6 +9,9 @@ dist/
 # Dados do PostgreSQL (bind mount no servidor)
 pgdata/
 
+# Mídias enviadas (bind mount no servidor — não são código)
+uploads/
+
 # Firebase Admin service account (SEGREDO — nunca commitar)
 *-firebase-adminsdk-*.json
 firebase-service-account.json

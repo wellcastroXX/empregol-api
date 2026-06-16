@@ -1,9 +1,20 @@
 import { AthleteRepository } from './athlete.repository';
 import { UpdateAthleteDTO } from './athlete.dto';
 import { NotFoundError, ForbiddenError } from '../../shared/errors/app-error';
+import { publicUrlFor } from '../../shared/upload/upload';
 
 export class AthleteService {
   private readonly repo = new AthleteRepository();
+
+  /** Persists an uploaded photo as the athlete's avatar; returns the new URL. */
+  async updateAvatar(userId: string, file: Express.Multer.File) {
+    const athlete = await this.repo.findByUserId(userId);
+    if (!athlete) throw new NotFoundError('Perfil de atleta não encontrado');
+
+    const avatarUrl = publicUrlFor(file.filename);
+    const updated = await this.repo.update(userId, { avatarUrl });
+    return { avatarUrl, athlete: updated };
+  }
 
   async getMyProfile(userId: string) {
     const athlete = await this.repo.findByUserId(userId);

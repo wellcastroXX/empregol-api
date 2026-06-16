@@ -14,3 +14,20 @@ export const createMediaSchema = z.object({
 });
 
 export type CreateMediaDTO = z.infer<typeof createMediaSchema>;
+
+/**
+ * Multipart upload metadata (text fields arrive as strings, so we coerce).
+ * `mediaType`, `url` and `fileSizeBytes` are derived from the uploaded file.
+ */
+export const uploadMediaSchema = z.object({
+  title:       z.string().min(1).max(100),
+  year:        z.coerce.number().int().min(2000).max(2100),
+  category:    z.string().max(60).optional(),
+  subcategory: z.string().max(60).optional(),
+  gameInfo:    z.string().max(100).optional(),
+  isPublic:    z
+    .preprocess((v) => (v === undefined ? true : v === 'true' || v === true), z.boolean())
+    .default(true),
+});
+
+export type UploadMediaDTO = z.infer<typeof uploadMediaSchema>;

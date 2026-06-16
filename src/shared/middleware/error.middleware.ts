@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { Prisma } from '@prisma/client';
+import { MulterError } from 'multer';
 import { AppError } from '../errors/app-error';
 
 export function errorMiddleware(
@@ -8,6 +9,17 @@ export function errorMiddleware(
   res: Response,
   _next: NextFunction,
 ): void {
+  // Upload errors (file too large, too many files, unexpected field…)
+  if (err instanceof MulterError) {
+    const tooLarge = err.code === 'LIMIT_FILE_SIZE';
+    res.status(tooLarge ? 413 : 400).json({
+      status: 'error',
+      code: tooLarge ? 'FILE_TOO_LARGE' : 'UPLOAD_ERROR',
+      message: tooLarge ? 'Arquivo excede o tamanho máximo permitido' : 'Falha no upload do arquivo',
+    });
+    return;
+  }
+
   if (err instanceof AppError) {
     res.status(err.statusCode).json({
       status: 'error',

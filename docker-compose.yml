@@ -38,11 +38,17 @@ services:
       CORS_ORIGIN: ${CORS_ORIGIN:-*}
       # Login social (Firebase Admin) — JSON do service account inline no .env do servidor
       FIREBASE_SERVICE_ACCOUNT: ${FIREBASE_SERVICE_ACCOUNT:-}
+      # Uploads (mídia da vitrine + avatar) — prefixo público dos links e limite por arquivo
+      PUBLIC_URL: ${PUBLIC_URL:-https://api.empregolstartup.com.br}
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-100}
       PORT: 3000
       NODE_ENV: production
     ports:
       # Mantido para acesso direto na LAN (http://192.168.3.197:3000), além do domínio público.
       - "${API_PORT:-3000}:3000"
+    volumes:
+      # Mídias/avatars persistem no SSD junto ao repo (mesmo padrão do pgdata)
+      - ./uploads:/app/uploads
     networks:
       - empregol-net
       - proxy

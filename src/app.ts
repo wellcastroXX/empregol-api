@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
 import { errorMiddleware } from './shared/middleware/error.middleware';
+import { uploadDir } from './shared/upload/upload';
 import { authAthleteRouter } from './modules/auth/athlete/auth-athlete.router';
 import { authContractorRouter } from './modules/auth/contractor/auth-contractor.router';
 import { authSocialRouter } from './modules/auth/social/auth-social.router';
@@ -22,8 +23,12 @@ import { favoriteRouter } from './modules/favorite/favorite.router';
 const app = express();
 
 // ─── Security ────────────────────────────────────────────────────────────────
-app.use(helmet());
+// crossOriginResourcePolicy relaxado pra o app carregar /uploads de outra origem.
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: process.env.CORS_ORIGIN ?? '*', credentials: true }));
+
+// ─── Static uploads (mídia + avatar; disco local enquanto não há S3) ───────────
+app.use('/uploads', express.static(uploadDir));
 
 // ─── Rate limiting ────────────────────────────────────────────────────────────
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false });

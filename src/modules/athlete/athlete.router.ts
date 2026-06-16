@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { AthleteController } from './athlete.controller';
 import { authenticate, authorize } from '../../shared/middleware/auth.middleware';
 import { validate } from '../../shared/middleware/validate.middleware';
+import { uploadImage } from '../../shared/upload/upload';
 import { updateAthleteSchema } from './athlete.dto';
 import { DashboardService } from '../dashboard/dashboard.service';
 
@@ -15,6 +16,8 @@ router.get('/', authenticate, controller.listAthletes);
 // Meu perfil (deve vir antes de /:id para não conflitar)
 router.get('/me', authenticate, authorize('ATHLETE'), controller.getMyProfile);
 router.put('/me', authenticate, authorize('ATHLETE'), validate(updateAthleteSchema), controller.updateProfile);
+// Foto do usuário (avatar) — upload de imagem (multipart `file`)
+router.patch('/me/avatar', authenticate, authorize('ATHLETE'), uploadImage, controller.updateAvatar);
 
 // Perfil básico — qualquer token; contratantes registram view automaticamente
 router.get('/:id/basic', authenticate, async (req, res, next) => {

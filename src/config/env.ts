@@ -17,6 +17,11 @@ const envSchema = z.object({
   //  • FIREBASE_SERVICE_ACCOUNT_PATH  → caminho para o arquivo .json no servidor
   FIREBASE_SERVICE_ACCOUNT: z.string().optional(),
   FIREBASE_SERVICE_ACCOUNT_PATH: z.string().optional(),
+
+  // Uploads (mídia da vitrine + avatar). Sem S3 ainda: disco local servido em /uploads.
+  PUBLIC_URL: z.string().url().optional(),
+  UPLOAD_DIR: z.string().default('uploads'),
+  MAX_UPLOAD_MB: z.coerce.number().int().positive().default(100),
 });
 
 const parsed = envSchema.safeParse(process.env);

@@ -1,8 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 import { AthleteService } from './athlete.service';
+import { ValidationError } from '../../shared/errors/app-error';
 
 export class AthleteController {
   private readonly service = new AthleteService();
+
+  updateAvatar = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.file) throw new ValidationError('Arquivo é obrigatório', { file: ['Envie uma imagem no campo "file"'] });
+      const data = await this.service.updateAvatar(req.user!.id, req.file);
+      res.json({ status: 'success', data });
+    } catch (err) { next(err); }
+  };
 
   getMyProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
