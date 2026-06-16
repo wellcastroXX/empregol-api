@@ -25,4 +25,11 @@ export class SeasonStatsController {
       res.json({ status: 'success', data });
     } catch (err) { next(err); }
   };
+
+  remove = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      await this.service.remove(req.user!.id, Number(req.params.year));
+      res.status(204).send();
+    } catch (err) { next(err); }
+  };
 }

@@ -27,6 +27,24 @@ export class SeasonStatsRepository {
     });
   }
 
+  async deleteByYear(athleteId: string, year: number) {
+    return prisma.seasonStats.delete({
+      where: { athleteId_year: { athleteId, year } },
+    });
+  }
+
+  // Zera os campos desnormalizados quando o atleta não tem mais temporadas.
+  async clearAthleteStats(athleteId: string) {
+    await prisma.athlete.update({
+      where: { id: athleteId },
+      data: { goals: null, assists: null, gamesThisSeason: null, minutesPlayed: null, lastClub: null },
+    });
+  }
+
+  async countByAthlete(athleteId: string): Promise<number> {
+    return prisma.seasonStats.count({ where: { athleteId } });
+  }
+
   // Sync the most recent season into the denormalized Athlete fields
   async syncLatestToAthlete(athleteId: string) {
     const latest = await prisma.seasonStats.findFirst({

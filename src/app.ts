@@ -22,6 +22,10 @@ import { favoriteRouter } from './modules/favorite/favorite.router';
 
 const app = express();
 
+// Atrás do Traefik + Cloudflare tunnel: confia no proxy para ler o IP real
+// (X-Forwarded-For) — corrige o rate-limit (por cliente, não por proxy) e o aviso.
+app.set('trust proxy', 1);
+
 // ─── Security ────────────────────────────────────────────────────────────────
 // crossOriginResourcePolicy relaxado pra o app carregar /uploads de outra origem.
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));

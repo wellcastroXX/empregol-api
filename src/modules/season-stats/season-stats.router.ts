@@ -16,4 +16,7 @@ router.get('/', authenticate, authorize('ATHLETE'), controller.list);
 // Busca por ano específico
 router.get('/:year', authenticate, authorize('ATHLETE'), controller.getByYear);
 
+// Remove a temporada de um ano
+router.delete('/:year', authenticate, authorize('ATHLETE'), controller.remove);
+
 export { router as seasonStatsRouter };
