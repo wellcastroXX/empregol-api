@@ -35,8 +35,8 @@ app.use(cors({ origin: process.env.CORS_ORIGIN ?? '*', credentials: true }));
 app.use('/uploads', express.static(uploadDir));
 
 // ─── Rate limiting ────────────────────────────────────────────────────────────
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false });
-const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false });
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false });
+const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 2000, standardHeaders: true, legacyHeaders: false });
 
 app.use(globalLimiter);
 app.use('/auth', authLimiter);
