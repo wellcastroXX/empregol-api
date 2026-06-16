@@ -31,3 +31,17 @@ export const uploadMediaSchema = z.object({
 });
 
 export type UploadMediaDTO = z.infer<typeof uploadMediaSchema>;
+
+/** Edição de metadados de uma mídia já existente (todos os campos opcionais). */
+export const updateMediaSchema = z.object({
+  title:       z.string().min(1).max(100).optional(),
+  year:        z.number().int().min(2000).max(2100).optional(),
+  category:    z.string().max(60).optional().nullable(),
+  subcategory: z.string().max(60).optional().nullable(),
+  gameInfo:    z.string().max(100).optional().nullable(),
+  isPublic:    z.boolean().optional(),
+  // Permite trocar a URL de um link externo (não vale para arquivos enviados).
+  url:         z.string().url('URL inválida').optional(),
+});
+
+export type UpdateMediaDTO = z.infer<typeof updateMediaSchema>;

@@ -1,6 +1,6 @@
 import { MediaType } from '@prisma/client';
 import { prisma } from '../../database/prisma';
-import { CreateMediaDTO } from './athlete-video.dto';
+import { CreateMediaDTO, UpdateMediaDTO } from './athlete-video.dto';
 
 export class AthleteVideoRepository {
   async findAthleteByUserId(userId: string) {
@@ -20,6 +20,10 @@ export class AthleteVideoRepository {
 
   async findById(id: string) {
     return prisma.athleteMedia.findUnique({ where: { id } });
+  }
+
+  async update(id: string, data: UpdateMediaDTO) {
+    return prisma.athleteMedia.update({ where: { id }, data });
   }
 
   async delete(id: string) {

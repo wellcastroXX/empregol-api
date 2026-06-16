@@ -38,6 +38,13 @@ export class AthleteVideoController {
     } catch (err) { next(err); }
   };
 
+  update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const data = await this.service.update(req.user!.id, req.params.id, req.body);
+      res.json({ status: 'success', data });
+    } catch (err) { next(err); }
+  };
+
   remove = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       await this.service.remove(req.user!.id, req.params.id);
