@@ -41,17 +41,30 @@ export class DashboardRepository {
   }
 
   async recentClubs(limit = 10) {
-    // Últimos clubes cadastrados (sem janela de tempo — base ainda é pequena).
+    const select = {
+      id: true,
+      name: true,
+      companyName: true,
+      avatarUrl: true,
+      user: { select: { createdAt: true } },
+    } as const;
+    const orderBy = { user: { createdAt: 'desc' as const } };
+
+    // Preferência: clubes dos últimos 7 dias.
+    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const lastWeek = await prisma.contractor.findMany({
+      where: { type: 'CLUB', user: { status: 'ACTIVE', createdAt: { gte: since } } },
+      select,
+      orderBy,
+      take: limit,
+    });
+    if (lastWeek.length > 0) return lastWeek;
+
+    // Sem cadastros na semana → cai para os últimos clubes registrados.
     return prisma.contractor.findMany({
       where: { type: 'CLUB', user: { status: 'ACTIVE' } },
-      select: {
-        id: true,
-        name: true,
-        companyName: true,
-        avatarUrl: true,
-        user: { select: { createdAt: true } },
-      },
-      orderBy: { user: { createdAt: 'desc' } },
+      select,
+      orderBy,
       take: limit,
     });
   }
