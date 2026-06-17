@@ -41,9 +41,9 @@ export class DashboardRepository {
   }
 
   async recentClubs(limit = 10) {
-    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    // Últimos clubes cadastrados (sem janela de tempo — base ainda é pequena).
     return prisma.contractor.findMany({
-      where: { type: 'CLUB', user: { status: 'ACTIVE', createdAt: { gte: since } } },
+      where: { type: 'CLUB', user: { status: 'ACTIVE' } },
       select: {
         id: true,
         name: true,
