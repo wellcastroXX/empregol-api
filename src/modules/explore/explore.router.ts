@@ -16,4 +16,7 @@ const controller = new ExploreController();
  */
 router.get('/athletes', authenticate, authorize('AGENT', 'CLUB'), controller.search);
 
+// GET /explore/contractors — "Mercado": clubes/agentes da plataforma (qualquer token)
+router.get('/contractors', authenticate, controller.searchContractors);
+
 export { router as exploreRouter };

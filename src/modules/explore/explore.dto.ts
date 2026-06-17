@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AvailabilityStatus, AgencyStatus, AthleteLevel, FootPreference, Gender } from '@prisma/client';
+import { AvailabilityStatus, AgencyStatus, AthleteLevel, ContractorType, FootPreference, Gender } from '@prisma/client';
 
 const POSITIONS = ['GOL','ZAG','LAD','LAE','VOL','MC','ME','MD','MCO','ALA','ATA','PD','PE','CA','SA','ST'] as const;
 
@@ -54,3 +54,13 @@ export const exploreQuerySchema = z.object({
 });
 
 export type ExploreQueryDTO = z.infer<typeof exploreQuerySchema>;
+
+/** Busca de contratantes (clubes/agentes) — "Mercado" do atleta. */
+export const contractorQuerySchema = z.object({
+  q:     z.string().max(100).optional(),
+  type:  z.nativeEnum(ContractorType).optional(),
+  page:  z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
+});
+
+export type ContractorQueryDTO = z.infer<typeof contractorQuerySchema>;

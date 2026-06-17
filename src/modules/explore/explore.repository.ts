@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '../../database/prisma';
-import { ExploreQueryDTO } from './explore.dto';
+import { ExploreQueryDTO, ContractorQueryDTO } from './explore.dto';
 
 const CARD_SELECT = {
   id: true,
@@ -34,6 +34,42 @@ const CARD_SELECT = {
 export class ExploreRepository {
   async findContractorByUserId(userId: string) {
     return prisma.contractor.findUnique({ where: { userId } });
+  }
+
+  /** "Mercado" — lista clubes/agentes ativos da plataforma. */
+  async searchContractors(dto: ContractorQueryDTO) {
+    const where: Prisma.ContractorWhereInput = {
+      user: { status: 'ACTIVE' },
+      ...(dto.type ? { type: dto.type } : {}),
+      ...(dto.q
+        ? {
+            OR: [
+              { name: { contains: dto.q, mode: 'insensitive' } },
+              { companyName: { contains: dto.q, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
+    const skip = (dto.page - 1) * dto.limit;
+
+    const [contractors, total] = await Promise.all([
+      prisma.contractor.findMany({
+        where,
+        select: { id: true, name: true, type: true, companyName: true, avatarUrl: true, createdAt: true },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: dto.limit,
+      }),
+      prisma.contractor.count({ where }),
+    ]);
+
+    return {
+      contractors,
+      total,
+      page: dto.page,
+      limit: dto.limit,
+      totalPages: Math.ceil(total / dto.limit),
+    };
   }
 
   async search(dto: ExploreQueryDTO, contractorId?: string) {
