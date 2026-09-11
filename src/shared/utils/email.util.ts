@@ -24,7 +24,7 @@ export async function sendVerificationEmail(to: string, name: string, code: stri
 }
 
 export async function sendPasswordResetEmail(to: string, name: string, token: string): Promise<void> {
-  const resetUrl = `${process.env.FRONTEND_URL ?? 'https://empregol.com.br'}/redefinir-senha?token=${token}`;
+  const resetUrl = `${process.env.FRONTEND_URL ?? 'https://empregolstartup.com.br'}/redefinir-senha?token=${token}`;
 
   await resend.emails.send({
     from: env.EMAIL_FROM,
