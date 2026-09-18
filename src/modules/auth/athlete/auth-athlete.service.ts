@@ -24,7 +24,9 @@ export class AuthAthleteService {
     }
 
     const hashedPassword = await hashPassword(dto.password);
-    const user = await this.repo.createAthleteWithUser({ ...dto, hashedPassword });
+    // Garante o array de posições (mín. a principal) mesmo p/ clientes antigos.
+    const positions = dto.positions?.length ? dto.positions : [dto.position];
+    const user = await this.repo.createAthleteWithUser({ ...dto, positions, hashedPassword });
 
     const code = generateNumericCode(6);
     await this.repo.createVerificationCode(user.id, code);

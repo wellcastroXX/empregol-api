@@ -107,6 +107,8 @@ model Athlete {
   naturalidade    String
   phone           String
   position        String
+  // Todas as posições em que atua (até 3). `position` é a principal (posições[0]).
+  positions       String[]           @default([])
   dominantFoot    FootPreference
   height          Float
   weight          Float

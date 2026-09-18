@@ -21,6 +21,7 @@ export class AthleteRepository {
         id: true,
         fullName: true,
         position: true,
+        positions: true,
         dominantFoot: true,
         level: true,
         availability: true,

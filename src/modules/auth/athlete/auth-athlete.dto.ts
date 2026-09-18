@@ -12,6 +12,8 @@ export const registerAthleteSchema = z.object({
   phone: z.string().min(10, 'Telefone inválido'),
   naturalidade: z.string().min(2, 'Naturalidade inválida'),
   position: z.string().min(2, 'Posição inválida'),
+  // Até 3 posições (a 1ª é a principal = `position`). Opcional p/ compat.
+  positions: z.array(z.string().min(2)).min(1).max(3).optional(),
   dominantFoot: z.nativeEnum(FootPreference),
   height: z.number().min(100).max(250),
   weight: z.number().min(30).max(200),
