@@ -28,7 +28,7 @@ export const updateAthleteSchema = z.object({
   expectedSalary: z.number().positive().optional().nullable(),
 
   // Social
-  socialMedia:    z.string().url().optional().nullable(),
+  socialMedia:    z.string().trim().max(200).optional().nullable(), // handle ou URL
   additionalInfo: z.string().max(1000).optional().nullable(),
 
   // Campos desnormalizados (atualizado via season-stats, mas editável manualmente)

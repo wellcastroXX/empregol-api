@@ -14,7 +14,8 @@ export const registerContractorSchema = z
     cpf: z.string().regex(cpfRegex, 'CPF deve conter 11 dígitos').optional(),
     cnpj: z.string().regex(cnpjRegex, 'CNPJ deve conter 14 dígitos').optional(),
     companyName: z.string().optional(),
-    socialMedia: z.string().url('URL de rede social inválida').optional(),
+    // Aceita handle (@user / user) ou URL completa — não força URL.
+    socialMedia: z.string().trim().max(200).optional(),
     additionalInfo: z.string().optional(),
   })
   .superRefine((data, ctx) => {
