@@ -57,7 +57,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
       - "traefik.http.routers.empregol-api.entrypoints=web"
-      - "traefik.http.routers.empregol-api.rule=Host(`${API_DOMAIN:-api.empregolstartup.com.br}`)"
+      - "traefik.http.routers.empregol-api.rule=Host(`${API_DOMAIN:-api.empregolstartup.com.br}`) || Host(`api.empregol.co`)"
       - "traefik.http.services.empregol-api.loadbalancer.server.port=3000"
 
 networks:
