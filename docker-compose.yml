@@ -40,6 +40,8 @@ services:
       FIREBASE_SERVICE_ACCOUNT: ${FIREBASE_SERVICE_ACCOUNT:-}
       # Uploads (mídia da vitrine + avatar) — prefixo público dos links e limite por arquivo
       PUBLIC_URL: ${PUBLIC_URL:-https://api.empregolstartup.com.br}
+      # URL do site usada nos links de e-mail (redefinicao de senha).
+      FRONTEND_URL: ${FRONTEND_URL:-https://empregolstartup.com.br}
       MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-100}
       PORT: 3000
       NODE_ENV: production
