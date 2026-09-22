@@ -11,7 +11,7 @@ export class AthleteService {
     const athlete = await this.repo.findByUserId(userId);
     if (!athlete) throw new NotFoundError('Perfil de atleta não encontrado');
 
-    const avatarUrl = publicUrlFor(file.filename);
+    const avatarUrl = publicUrlFor(file.filename, 'avatars');
     const updated = await this.repo.update(userId, { avatarUrl });
     return { avatarUrl, athlete: updated };
   }

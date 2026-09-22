@@ -10,6 +10,10 @@ import { AppError } from '../errors/app-error';
 export const uploadDir = path.resolve(process.cwd(), env.UPLOAD_DIR);
 fs.mkdirSync(uploadDir, { recursive: true });
 
+/** Subpasta dedicada às fotos de perfil (avatares) dos atletas. */
+export const avatarsDir = path.join(uploadDir, 'avatars');
+fs.mkdirSync(avatarsDir, { recursive: true });
+
 const EXT_BY_MIME: Record<string, string> = {
   'image/jpeg': '.jpg',
   'image/png': '.png',
@@ -21,13 +25,15 @@ const EXT_BY_MIME: Record<string, string> = {
   'video/webm': '.webm',
 };
 
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadDir),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname) || EXT_BY_MIME[file.mimetype] || '';
-    cb(null, `${Date.now()}-${randomUUID()}${ext}`);
-  },
-});
+const filename = (_req: Request, file: Express.Multer.File, cb: (e: Error | null, name: string) => void) => {
+  const ext = path.extname(file.originalname) || EXT_BY_MIME[file.mimetype] || '';
+  cb(null, `${Date.now()}-${randomUUID()}${ext}`);
+};
+
+const storage = multer.diskStorage({ destination: (_req, _file, cb) => cb(null, uploadDir), filename });
+
+/** Avatares vão para uploads/avatars/ (URL pública `/uploads/avatars/<name>`). */
+const avatarStorage = multer.diskStorage({ destination: (_req, _file, cb) => cb(null, avatarsDir), filename });
 
 function imageOrVideoFilter(_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback): void {
   if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
@@ -53,8 +59,15 @@ export const uploadMedia = multer({ storage, fileFilter: imageOrVideoFilter, lim
 /** Accepts a single image under field `file` (user avatar / photo). */
 export const uploadImage = multer({ storage, fileFilter: imageOnlyFilter, limits }).single('file');
 
-/** Public URL for a stored file, e.g. `${PUBLIC_URL}/uploads/<name>`. */
-export function publicUrlFor(filename: string): string {
+/** Accepts a single image under field `file`, salvo em uploads/avatars/. */
+export const uploadAvatar = multer({ storage: avatarStorage, fileFilter: imageOnlyFilter, limits }).single('file');
+
+/**
+ * Public URL for a stored file, e.g. `${PUBLIC_URL}/uploads/<name>`.
+ * Passe `subdir` (ex.: 'avatars') para arquivos em subpastas.
+ */
+export function publicUrlFor(filename: string, subdir?: string): string {
   const base = (env.PUBLIC_URL ?? `http://localhost:${env.PORT}`).replace(/\/$/, '');
-  return `${base}/uploads/${filename}`;
+  const prefix = subdir ? `${subdir}/` : '';
+  return `${base}/uploads/${prefix}${filename}`;
 }
