@@ -48,6 +48,10 @@ export class AthleteService {
       throw new ForbiddenError('Você só pode editar seu próprio perfil');
     }
 
-    return this.repo.update(userId, dto);
+    // Mantém a posição principal em sincronia com o array (1ª = principal).
+    const data = { ...dto };
+    if (data.positions?.length) data.position = data.positions[0];
+
+    return this.repo.update(userId, data);
   }
 }

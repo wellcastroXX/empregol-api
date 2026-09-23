@@ -15,6 +15,8 @@ export const updateAthleteSchema = z.object({
 
   // Perfil esportivo
   position:       z.string().min(2).optional(),
+  // Até 3 posições (a 1ª é a principal = position).
+  positions:      z.array(z.string().min(2)).min(1).max(3).optional(),
   dominantFoot:   z.nativeEnum(FootPreference).optional(),
   height:         z.number().min(1).max(2.5).optional(),
   weight:         z.number().min(30).max(200).optional(),
