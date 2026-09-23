@@ -4,6 +4,8 @@ import { FootPreference, AthleteLevel, AvailabilityStatus, AgencyStatus } from '
 export const updateAthleteSchema = z.object({
   // Identidade
   fullName:       z.string().min(3).optional(),
+  cpf:            z.string().regex(/^\d{11}$/, 'CPF deve conter 11 dígitos').optional(),
+  birthDate:      z.coerce.date({ invalid_type_error: 'Data de nascimento inválida' }).optional(),
   naturalidade:   z.string().min(2).optional(),
   phone:          z.string().min(10).optional(),
   city:           z.string().optional().nullable(),
@@ -18,7 +20,7 @@ export const updateAthleteSchema = z.object({
   // Até 3 posições (a 1ª é a principal = position).
   positions:      z.array(z.string().min(2)).min(1).max(3).optional(),
   dominantFoot:   z.nativeEnum(FootPreference).optional(),
-  height:         z.number().min(1).max(2.5).optional(),
+  height:         z.number().min(100).max(250).optional(), // cm (igual ao cadastro)
   weight:         z.number().min(30).max(200).optional(),
   level:          z.nativeEnum(AthleteLevel).optional(),
 
