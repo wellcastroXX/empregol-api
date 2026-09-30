@@ -3,6 +3,7 @@ import { app } from './app';
 import { env } from './config/env';
 import { prisma } from './database/prisma';
 import { createSocketServer } from './socket/socket.service';
+import { startScheduler } from './modules/notifications/scheduler';
 
 async function bootstrap() {
   await prisma.$connect();
@@ -18,6 +19,9 @@ async function bootstrap() {
 
   // Expose io instance globally if needed by services
   (globalThis as any).io = io;
+
+  // Agendador de notificações (Fase 2)
+  startScheduler();
 }
 
 bootstrap().catch((err) => {

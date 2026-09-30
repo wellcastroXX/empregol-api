@@ -1,7 +1,17 @@
+import { UserRole } from '@prisma/client';
 import { prisma } from '../../database/prisma';
 import type { Channel } from './message-bank';
 
 export class NotificationsRepository {
+  /** IDs de usuários ativos (dos papéis dados) que têm ao menos 1 token. */
+  async userIdsWithTokens(roles: UserRole[]): Promise<string[]> {
+    const rows = await prisma.user.findMany({
+      where: { role: { in: roles }, status: 'ACTIVE', deviceTokens: { some: {} } },
+      select: { id: true },
+    });
+    return rows.map((r) => r.id);
+  }
+
   /** Regista/atualiza um token de device do usuário (token é único). */
   async upsertToken(userId: string, token: string, platform?: string) {
     return prisma.deviceToken.upsert({

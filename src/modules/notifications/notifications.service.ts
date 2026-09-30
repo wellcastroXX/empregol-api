@@ -1,3 +1,4 @@
+import { UserRole } from '@prisma/client';
 import { ENGAGEMENT_RULES, MESSAGE_BY_ID } from './message-bank';
 import { NotificationsRepository } from './notifications.repository';
 import { sendExpoPush } from './push.service';
@@ -60,6 +61,20 @@ export class NotificationsService {
     );
     await this.repo.logSent(userId, msg.id, 'PUSH');
     return { sent: true };
+  }
+
+  /** Dispara uma mensagem para todos os usuários do público dela (com token). */
+  async broadcast(messageId: string, vars: Vars = {}): Promise<{ sent: number; total: number }> {
+    const msg = MESSAGE_BY_ID[messageId];
+    if (!msg) return { sent: 0, total: 0 };
+    const roles: UserRole[] = msg.audience === 'ATHLETE' ? ['ATHLETE'] : ['AGENT', 'CLUB'];
+    const ids = await this.repo.userIdsWithTokens(roles);
+    let sent = 0;
+    for (const id of ids) {
+      const r = await this.dispatch(id, messageId, vars);
+      if (r.sent) sent++;
+    }
+    return { sent, total: ids.length };
   }
 }
 
