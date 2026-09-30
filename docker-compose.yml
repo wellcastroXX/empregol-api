@@ -30,7 +30,7 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-empregol}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-empregol}?schema=public
       JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-30d}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-30d}
       RESEND_API_KEY: ${RESEND_API_KEY}
@@ -43,6 +43,10 @@ services:
       # URL do site usada nos links de e-mail (redefinicao de senha).
       FRONTEND_URL: ${FRONTEND_URL:-https://empregolstartup.com.br}
       MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-100}
+      # Notificações: chave dos endpoints admin, modo teste e liga/desliga do cron
+      ADMIN_KEY: ${ADMIN_KEY:-}
+      NOTIF_TEST_MODE: ${NOTIF_TEST_MODE:-false}
+      ENABLE_SCHEDULER: ${ENABLE_SCHEDULER:-true}
       PORT: 3000
       NODE_ENV: production
     ports:
