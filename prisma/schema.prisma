@@ -86,10 +86,12 @@ model User {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
-  athlete        Athlete?
-  contractor     Contractor?
-  emailCodes     EmailVerificationCode[]
-  passwordResets PasswordReset[]
+  athlete          Athlete?
+  contractor       Contractor?
+  emailCodes       EmailVerificationCode[]
+  passwordResets   PasswordReset[]
+  deviceTokens     DeviceToken[]
+  notificationLogs NotificationLog[]
 
   @@map("users")
 }
@@ -352,4 +354,32 @@ model PasswordReset {
   createdAt DateTime @default(now())
 
   @@map("password_resets")
+}
+
+// ─── Push / notificações ────────────────────────────────────────────────────
+
+model DeviceToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique // Expo push token (ExponentPushToken[...])
+  platform  String? // ios | android
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("device_tokens")
+}
+
+model NotificationLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messageId String // ex.: AT-12
+  channel   String // PUSH | IN_APP | EMAIL
+  sentAt    DateTime @default(now())
+
+  @@index([userId, sentAt])
+  @@index([userId, messageId])
+  @@map("notification_logs")
 }

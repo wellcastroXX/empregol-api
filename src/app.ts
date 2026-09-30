@@ -19,6 +19,7 @@ import { conversationRouter } from './modules/conversation/conversation.router';
 import { messageRouter } from './modules/message/message.router';
 import { exploreRouter } from './modules/explore/explore.router';
 import { favoriteRouter } from './modules/favorite/favorite.router';
+import { notificationsRouter } from './modules/notifications/notifications.router';
 
 const app = express();
 
@@ -71,6 +72,9 @@ app.use('/conversations/:id/messages', messageRouter);
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 app.use('/dashboard', dashboardRouter);
+
+// ─── Notificações (push) ──────────────────────────────────────────────────────
+app.use('/notifications', notificationsRouter);
 
 // ─── 404 ──────────────────────────────────────────────────────────────────────
 app.use((_req, res) => res.status(404).json({ status: 'error', code: 'NOT_FOUND', message: 'Rota não encontrada' }));

@@ -3,6 +3,7 @@ import { MessageRepository } from './message.repository';
 import { ConversationRepository } from '../conversation/conversation.repository';
 import { SendMessageDTO } from './message.dto';
 import { NotFoundError, ForbiddenError } from '../../shared/errors/app-error';
+import { notify } from '../notifications/notifications.service';
 
 export class MessageService {
   private readonly repo = new MessageRepository();
@@ -38,7 +39,23 @@ export class MessageService {
       this.convRepo.incrementUnread(conversationId, recipientRole),
     ]);
 
+    // Push para o destinatário (AT-12 atleta · CL-11 clube). Fire-and-forget.
+    this.notifyRecipient(conversationId, role).catch(() => undefined);
+
     return { message, conversationId: conv.id };
+  }
+
+  /** Notifica por push quem recebeu a mensagem (usa os nomes da conversa). */
+  private async notifyRecipient(conversationId: string, senderRole: UserRole) {
+    const full = await this.convRepo.findById(conversationId);
+    if (!full) return;
+    if (senderRole === 'ATHLETE') {
+      notify(full.contractor.userId, 'CL-11', { atleta: full.athlete.fullName });
+    } else {
+      notify(full.athlete.userId, 'AT-12', {
+        remetente: full.contractor.companyName ?? full.contractor.name,
+      });
+    }
   }
 
   async list(userId: string, role: UserRole, conversationId: string, cursor?: string) {

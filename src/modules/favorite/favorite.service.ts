@@ -1,5 +1,6 @@
 import { FavoriteRepository } from './favorite.repository';
 import { NotFoundError } from '../../shared/errors/app-error';
+import { notify } from '../notifications/notifications.service';
 
 export class FavoriteService {
   private readonly repo = new FavoriteRepository();
@@ -11,7 +12,10 @@ export class FavoriteService {
     const athlete = await this.repo.findAthleteById(athleteId);
     if (!athlete) throw new NotFoundError('Atleta não encontrado');
 
-    return this.repo.toggle(contractor.id, athlete.id);
+    const result = await this.repo.toggle(contractor.id, athlete.id);
+    // Entrou na lista de um clube → push ao atleta (AT-11). Fire-and-forget.
+    if (result.favorited) notify(athlete.userId, 'AT-11');
+    return result;
   }
 
   async list(contractorUserId: string) {

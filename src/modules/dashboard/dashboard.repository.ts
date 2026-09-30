@@ -79,12 +79,17 @@ export class DashboardRepository {
     });
   }
 
-  async recordView(athleteId: string, contractorId: string) {
+  async recordView(athleteId: string, contractorId: string): Promise<{ created: boolean }> {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
     const recent = await prisma.profileView.findFirst({
       where: { athleteId, contractorId, viewedAt: { gte: oneHourAgo } },
     });
-    if (recent) return recent;
-    return prisma.profileView.create({ data: { athleteId, contractorId } });
+    if (recent) return { created: false };
+    await prisma.profileView.create({ data: { athleteId, contractorId } });
+    return { created: true };
+  }
+
+  async countViews(athleteId: string): Promise<number> {
+    return prisma.profileView.count({ where: { athleteId } });
   }
 }

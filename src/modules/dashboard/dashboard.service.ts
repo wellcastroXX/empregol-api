@@ -1,6 +1,7 @@
 import { prisma } from '../../database/prisma';
 import { DashboardRepository } from './dashboard.repository';
 import { NotFoundError } from '../../shared/errors/app-error';
+import { notify } from '../notifications/notifications.service';
 
 // Sections used for profile completion calculation
 const SECTIONS = {
@@ -87,6 +88,21 @@ export class DashboardService {
   async recordProfileView(athleteId: string, contractorUserId: string) {
     const contractor = await prisma.contractor.findUnique({ where: { userId: contractorUserId } });
     if (!contractor) return;
-    await this.repo.recordView(athleteId, contractor.id);
+    const { created } = await this.repo.recordView(athleteId, contractor.id);
+    if (created) this.notifyView(athleteId).catch(() => undefined);
+  }
+
+  /** Push ao atleta: 1ª view (AT-40), marcos (AT-41, in-app) ou visualização (AT-10). */
+  private async notifyView(athleteId: string) {
+    const athlete = await prisma.athlete.findUnique({
+      where: { id: athleteId },
+      select: { userId: true },
+    });
+    if (!athlete) return;
+    const total = await this.repo.countViews(athleteId);
+    if (total === 1) return notify(athlete.userId, 'AT-40');
+    if ([10, 50, 100].includes(total)) return notify(athlete.userId, 'AT-41', { n: total });
+    // Sem série/nome autorizado → usa o fallback "Um clube viu seu perfil hoje".
+    notify(athlete.userId, 'AT-10', { serie: '' });
   }
 }
