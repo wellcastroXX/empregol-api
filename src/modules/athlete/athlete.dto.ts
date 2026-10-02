@@ -23,6 +23,7 @@ export const updateAthleteSchema = z.object({
   height:         z.number().min(100).max(250).optional(), // cm (igual ao cadastro)
   weight:         z.number().min(30).max(200).optional(),
   level:          z.nativeEnum(AthleteLevel).optional(),
+  sportsProfileUrl: z.string().url('Link do perfil esportivo inválido').optional().nullable(),
 
   // Status
   availability:   z.nativeEnum(AvailabilityStatus).optional(),

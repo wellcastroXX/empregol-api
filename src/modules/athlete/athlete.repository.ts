@@ -35,6 +35,7 @@ export class AthleteRepository {
         expectedSalary: true,
         avatarUrl: true,
         socialMedia: true,
+        sportsProfileUrl: true,
         additionalInfo: true,
         createdAt: true,
         goals: true,

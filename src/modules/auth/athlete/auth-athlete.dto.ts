@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { FootPreference, AthleteLevel } from '@prisma/client';
+import { FootPreference, AthleteLevel, Gender } from '@prisma/client';
 
 const cpfRegex = /^\d{11}$/;
 
@@ -18,6 +18,8 @@ export const registerAthleteSchema = z.object({
   height: z.number().min(100).max(250),
   weight: z.number().min(30).max(200),
   level: z.nativeEnum(AthleteLevel),
+  gender: z.nativeEnum(Gender).optional(),
+  sportsProfileUrl: z.string().url('Link do perfil esportivo inválido').optional(),
   expectedSalary: z.number().positive().optional(),
   videoUrl: z.string().url('URL de vídeo inválida').optional(),
 });
