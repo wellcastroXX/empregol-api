@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -34,6 +35,9 @@ app.use(cors({ origin: process.env.CORS_ORIGIN ?? '*', credentials: true }));
 
 // ─── Static uploads (mídia + avatar; disco local enquanto não há S3) ───────────
 app.use('/uploads', express.static(uploadDir));
+
+// ─── Documentos públicos (termos de uso, etc.) — servidos inline p/ visualização ─
+app.use('/legal', express.static(path.join(process.cwd(), 'public', 'legal')));
 
 // ─── Rate limiting ────────────────────────────────────────────────────────────
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false });
