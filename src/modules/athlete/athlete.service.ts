@@ -3,6 +3,10 @@ import { UpdateAthleteDTO } from './athlete.dto';
 import { NotFoundError, ForbiddenError } from '../../shared/errors/app-error';
 import { publicUrlFor } from '../../shared/upload/upload';
 import { blockedUserIds } from '../moderation/moderation.service';
+import { ageFrom, uniqueSlug } from '../../shared/utils/slug.util';
+
+/** Termos, cláusula 3.2(d): menor de 18 fica nas configurações mais protetivas. */
+const MIN_PUBLIC_AGE = 18;
 
 export class AthleteService {
   private readonly repo = new AthleteRepository();
@@ -27,6 +31,26 @@ export class AthleteService {
     const athlete = await this.repo.findBasicById(id);
     if (!athlete) throw new NotFoundError('Atleta não encontrado');
     return athlete;
+  }
+
+  /**
+   * Vitrine pública, sem token. Só responde quando o atleta ligou a vitrine.
+   *
+   * Devolve a idade em vez da data de nascimento: numa página aberta e
+   * indexável, data exata é dado pessoal que ninguém precisa ver.
+   */
+  async getPublicProfile(slug: string) {
+    const athlete = await this.repo.findPublicBySlug(slug);
+    if (!athlete) throw new NotFoundError('Perfil não encontrado');
+
+    const { birthDate, ...rest } = athlete;
+    const years = ageFrom(birthDate);
+
+    // Cinto e suspensório: a vitrine de menor não deveria estar ligada, mas se
+    // um aniversário ou uma correção de data virar o jogo, ela fecha sozinha.
+    if (years < MIN_PUBLIC_AGE) throw new NotFoundError('Perfil não encontrado');
+
+    return { ...rest, age: years };
   }
 
   async getFullProfile(id: string) {
@@ -54,6 +78,23 @@ export class AthleteService {
     // Mantém a posição principal em sincronia com o array (1ª = principal).
     const data = { ...dto };
     if (data.positions?.length) data.position = data.positions[0];
+
+    // Abrir a vitrine pública: só maior de 18, e o slug nasce aqui — não no
+    // cadastro, porque a maioria dos atletas nunca vai abrir a vitrine.
+    if (data.publicProfile === true) {
+      if (ageFrom(athlete.birthDate) < MIN_PUBLIC_AGE) {
+        throw new ForbiddenError(
+          'A vitrine pública está disponível a partir dos 18 anos. Até lá, seu perfil só aparece para clubes e agentes aprovados.',
+        );
+      }
+
+      if (!athlete.slug) {
+        const slug = await uniqueSlug(data.fullName ?? athlete.fullName, (candidate) =>
+          this.repo.isSlugTaken(candidate),
+        );
+        await this.repo.setSlug(athlete.id, slug);
+      }
+    }
 
     return this.repo.update(userId, data);
   }

@@ -27,6 +27,14 @@ export class AthleteController {
     } catch (err) { next(err); }
   };
 
+  /** Vitrine pública — sem token. Ver AthleteService.getPublicProfile. */
+  getPublicProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const data = await this.service.getPublicProfile(req.params.slug);
+      res.json({ status: 'success', data });
+    } catch (err) { next(err); }
+  };
+
   getFullProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const data = await this.service.getFullProfile(req.params.id);

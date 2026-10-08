@@ -32,6 +32,9 @@ export const updateAthleteSchema = z.object({
   // Pretensão salarial
   expectedSalary: z.number().positive().optional().nullable(),
 
+  // Vitrine pública (empregol.co/p/<slug>). Ligar exige 18 anos — ver service.
+  publicProfile:  z.boolean().optional(),
+
   // Social
   socialMedia:    z.string().trim().max(200).optional().nullable(), // handle ou URL
   additionalInfo: z.string().max(1000).optional().nullable(),

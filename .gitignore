@@ -17,6 +17,12 @@ uploads/
 firebase-service-account.json
 secrets/
 
+# Ferramentas locais de deploy e config do Claude Code — este repo é PÚBLICO.
+# O settings.json guarda comandos aprovados com a senha do SSH embutida.
+.claude/
+.deploy_ssh.py
+.deploy_firebase.py
+
 # Logs / OS
 *.log
 .DS_Store

@@ -11,6 +11,7 @@ import { authAthleteRouter } from './modules/auth/athlete/auth-athlete.router';
 import { authContractorRouter } from './modules/auth/contractor/auth-contractor.router';
 import { authSocialRouter } from './modules/auth/social/auth-social.router';
 import { athleteRouter } from './modules/athlete/athlete.router';
+import { publicAthleteRouter } from './modules/athlete/public-athlete.router';
 import { contractorRouter } from './modules/contractor/contractor.router';
 import { proposalRouter } from './modules/proposal/proposal.router';
 import { dashboardRouter } from './modules/dashboard/dashboard.router';
@@ -58,6 +59,10 @@ app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date()
 app.use('/auth/athletes',    authAthleteRouter);
 app.use('/auth/contractors', authContractorRouter);
 app.use('/auth/social',      authSocialRouter);
+
+// ─── Público (sem token) ──────────────────────────────────────────────────────
+// Vitrine que o atleta abriu por conta própria — empregol.co/p/<slug>.
+app.use('/public',            publicAthleteRouter);
 
 // ─── Profiles ─────────────────────────────────────────────────────────────────
 app.use('/athletes',          athleteRouter);

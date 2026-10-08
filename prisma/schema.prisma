@@ -161,6 +161,12 @@ model Athlete {
   avatarUrl       String?
   expectedSalary  Decimal?           @db.Decimal(10, 2)
 
+  // Vitrine pública (empregol.co/p/<slug>). Fechada por padrão: o atleta liga
+  // quando quiser, e menor de 18 não liga — Termos, cláusula 3.2(d).
+  publicProfile   Boolean            @default(false)
+  // Gerado na primeira vez que o atleta abre a vitrine; nulo até lá.
+  slug            String?            @unique
+
   city            String?
   state           String?
 
