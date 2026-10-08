@@ -24,6 +24,21 @@ export class AthleteService {
   async getMyProfile(userId: string) {
     const athlete = await this.repo.findByUserId(userId);
     if (!athlete) throw new NotFoundError('Perfil de atleta não encontrado');
+
+    // Quem se cadastrou menor entra fechado; ao completar 18 anos a vitrine
+    // abre sozinha, que é o padrão de quem é maior. `slug` nulo é o que separa
+    // "nunca teve vitrine" de "abriu e fechou" — fechar não apaga o slug, então
+    // quem desligou de propósito continua desligado.
+    const shouldOpen =
+      !athlete.publicProfile && !athlete.slug && ageFrom(athlete.birthDate) >= MIN_PUBLIC_AGE;
+
+    if (shouldOpen) {
+      const slug = await uniqueSlug(athlete.fullName, (candidate) =>
+        this.repo.isSlugTaken(candidate),
+      );
+      return this.repo.openShowcase(athlete.id, slug);
+    }
+
     return athlete;
   }
 

@@ -26,7 +26,17 @@ export class AuthAthleteRepository {
     return count > 0;
   }
 
-  async createAthleteWithUser(data: RegisterAthleteDTO & { hashedPassword: string }) {
+  async slugExists(slug: string) {
+    return (await prisma.athlete.count({ where: { slug } })) > 0;
+  }
+
+  async createAthleteWithUser(
+    data: RegisterAthleteDTO & {
+      hashedPassword: string;
+      publicProfile: boolean;
+      slug?: string;
+    },
+  ) {
     // `password` (texto puro) e `videoUrl` não são colunas de Athlete — remover do nested create.
     const { email, password: _password, hashedPassword, videoUrl: _videoUrl, ...athleteData } = data;
     return prisma.user.create({

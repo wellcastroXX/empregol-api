@@ -11,6 +11,10 @@ import { hashPassword, comparePassword, generateNumericCode, generateSecureToken
 import { signAccessToken, signRefreshToken } from '../../../shared/utils/jwt.util';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../../../shared/utils/email.util';
 import { AppError, ConflictError, UnauthorizedError, NotFoundError } from '../../../shared/errors/app-error';
+import { ageFrom, uniqueSlug } from '../../../shared/utils/slug.util';
+
+/** Termos, cláusula 3.2(d): menor de 18 fica nas configurações mais protetivas. */
+const MIN_PUBLIC_AGE = 18;
 
 export class AuthAthleteService {
   private readonly repo = new AuthAthleteRepository();
@@ -26,7 +30,23 @@ export class AuthAthleteService {
     const hashedPassword = await hashPassword(dto.password);
     // Garante o array de posições (mín. a principal) mesmo p/ clientes antigos.
     const positions = dto.positions?.length ? dto.positions : [dto.position];
-    const user = await this.repo.createAthleteWithUser({ ...dto, positions, hashedPassword });
+
+    // Vitrine pública já ligada para maior de 18 — é o padrão do produto. Menor
+    // entra fechado e sem slug (Termos, cláusula 3.2(d)), e nem vê a opção.
+    const adult = ageFrom(dto.birthDate) >= MIN_PUBLIC_AGE;
+    const showcase = adult
+      ? {
+          publicProfile: true,
+          slug: await uniqueSlug(dto.fullName, (candidate) => this.repo.slugExists(candidate)),
+        }
+      : { publicProfile: false };
+
+    const user = await this.repo.createAthleteWithUser({
+      ...dto,
+      positions,
+      hashedPassword,
+      ...showcase,
+    });
 
     const code = generateNumericCode(6);
     await this.repo.createVerificationCode(user.id, code);

@@ -54,6 +54,11 @@ export class AthleteRepository {
     return prisma.athlete.update({ where: { id }, data: { slug } });
   }
 
+  /** Abre a vitrine e grava o slug de uma vez (atleta que completou 18 anos). */
+  async openShowcase(id: string, slug: string) {
+    return prisma.athlete.update({ where: { id }, data: { slug, publicProfile: true } });
+  }
+
   async findById(id: string) {
     return prisma.athlete.findUnique({
       where: { id },
