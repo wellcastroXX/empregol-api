@@ -42,6 +42,7 @@ export class AthleteController {
         position: req.query.position as string,
         level: req.query.level as string,
         availability: req.query.availability as string,
+        requesterId: req.user!.id,
       });
       res.json({ status: 'success', data });
     } catch (err) { next(err); }

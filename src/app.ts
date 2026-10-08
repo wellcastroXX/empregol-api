@@ -21,6 +21,8 @@ import { messageRouter } from './modules/message/message.router';
 import { exploreRouter } from './modules/explore/explore.router';
 import { favoriteRouter } from './modules/favorite/favorite.router';
 import { notificationsRouter } from './modules/notifications/notifications.router';
+import { accountRouter } from './modules/account/account.router';
+import { moderationRouter } from './modules/moderation/moderation.router';
 
 const app = express();
 
@@ -79,6 +81,10 @@ app.use('/dashboard', dashboardRouter);
 
 // ─── Notificações (push) ──────────────────────────────────────────────────────
 app.use('/notifications', notificationsRouter);
+
+// ─── Conta & moderação (exclusão de conta, denúncias, bloqueios) ────────────────
+app.use('/account', accountRouter);
+app.use('/moderation', moderationRouter);
 
 // ─── 404 ──────────────────────────────────────────────────────────────────────
 app.use((_req, res) => res.status(404).json({ status: 'error', code: 'NOT_FOUND', message: 'Rota não encontrada' }));

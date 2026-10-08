@@ -1,0 +1,13 @@
+{
+  "android": {
+    "package": "com.wellcastrox.empregolapi"
+  },
+  "ios": {
+    "bundleIdentifier": "com.wellcastrox.empregolapi"
+  },
+  "extra": {
+    "eas": {
+      "projectId": "1115ee54-5a56-4cad-bc5d-a7f188cf47a2"
+    }
+  }
+}

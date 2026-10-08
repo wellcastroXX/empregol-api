@@ -19,6 +19,7 @@ export class AthleteRepository {
       where: { id },
       select: {
         id: true,
+        userId: true,
         fullName: true,
         birthDate: true,
         naturalidade: true,
@@ -58,12 +59,14 @@ export class AthleteRepository {
     position?: string;
     level?: string;
     availability?: string;
+    excludeUserIds?: string[];
   }) {
-    const { page, limit, position, level, availability } = params;
+    const { page, limit, position, level, availability, excludeUserIds } = params;
     const where: Prisma.AthleteWhereInput = {
       ...(position && { position: { contains: position, mode: 'insensitive' } }),
       ...(level && { level: level as any }),
       ...(availability && { availability: availability as any }),
+      ...(excludeUserIds?.length ? { userId: { notIn: excludeUserIds } } : {}),
       user: { status: 'ACTIVE' },
     };
 

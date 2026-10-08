@@ -13,7 +13,11 @@ services:
       # Dados do banco ficam dentro do repo (que está no SSD Kingston)
       - ./pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-empregol} -d ${POSTGRES_DB:-empregol}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-empregol} -d ${POSTGRES_DB:-empregol}",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10

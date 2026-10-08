@@ -1,6 +1,7 @@
 import { ContractorType, UserRole } from '@prisma/client';
 import { ConversationRepository } from './conversation.repository';
-import { NotFoundError, ForbiddenError } from '../../shared/errors/app-error';
+import { NotFoundError, ForbiddenError, AppError } from '../../shared/errors/app-error';
+import { isBlockedBetween } from '../moderation/moderation.service';
 
 export class ConversationService {
   private readonly repo = new ConversationRepository();
@@ -13,6 +14,10 @@ export class ConversationService {
     // athleteId param is Athlete.id (not userId)
     const athleteById = await this.repo.findAthleteById(athleteId);
     if (!athleteById) throw new NotFoundError('Atleta não encontrado');
+
+    if (await isBlockedBetween(contractorUserId, athleteById.userId)) {
+      throw new AppError('Não é possível iniciar uma conversa com este usuário', 403, 'USER_BLOCKED');
+    }
 
     const { conversation, created } = await this.repo.findOrCreate(athleteById.id, contractor.id);
     return { conversation, created };

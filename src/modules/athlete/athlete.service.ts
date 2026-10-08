@@ -2,6 +2,7 @@ import { AthleteRepository } from './athlete.repository';
 import { UpdateAthleteDTO } from './athlete.dto';
 import { NotFoundError, ForbiddenError } from '../../shared/errors/app-error';
 import { publicUrlFor } from '../../shared/upload/upload';
+import { blockedUserIds } from '../moderation/moderation.service';
 
 export class AthleteService {
   private readonly repo = new AthleteRepository();
@@ -34,10 +35,12 @@ export class AthleteService {
     return athlete;
   }
 
-  async listAthletes(query: { page?: number; limit?: number; position?: string; level?: string; availability?: string }) {
+  async listAthletes(query: { page?: number; limit?: number; position?: string; level?: string; availability?: string; requesterId?: string }) {
     const page = Math.max(1, query.page ?? 1);
     const limit = Math.min(50, Math.max(1, query.limit ?? 20));
-    return this.repo.listAthletes({ page, limit, position: query.position, level: query.level, availability: query.availability });
+    // Esconde da descoberta atletas bloqueados (em qualquer direção).
+    const excludeUserIds = query.requesterId ? await blockedUserIds(query.requesterId) : [];
+    return this.repo.listAthletes({ page, limit, position: query.position, level: query.level, availability: query.availability, excludeUserIds });
   }
 
   async updateProfile(userId: string, requesterId: string, requesterRole: string, dto: UpdateAthleteDTO) {
