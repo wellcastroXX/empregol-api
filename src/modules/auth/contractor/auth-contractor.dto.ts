@@ -20,7 +20,7 @@ export const registerContractorSchema = z
   })
   .superRefine((data, ctx) => {
     if (data.type === 'AGENT' && !data.cpf) {
-      ctx.addIssue({ code: 'custom', path: ['cpf'], message: 'CPF é obrigatório para agentes' });
+      ctx.addIssue({ code: 'custom', path: ['cpf'], message: 'CPF é obrigatório para agências' });
     }
     if (data.type === 'CLUB' && !data.cnpj) {
       ctx.addIssue({ code: 'custom', path: ['cnpj'], message: 'CNPJ é obrigatório para clubes' });

@@ -99,7 +99,7 @@ export class AthleteService {
     if (data.publicProfile === true) {
       if (ageFrom(athlete.birthDate) < MIN_PUBLIC_AGE) {
         throw new ForbiddenError(
-          'A vitrine pública está disponível a partir dos 18 anos. Até lá, seu perfil só aparece para clubes e agentes aprovados.',
+          'A vitrine pública está disponível a partir dos 18 anos. Até lá, seu perfil só aparece para clubes e agências aprovadas.',
         );
       }
 

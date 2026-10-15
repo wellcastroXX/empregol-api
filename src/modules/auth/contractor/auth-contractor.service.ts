@@ -38,7 +38,7 @@ export class AuthContractorService {
     if (!valid) throw new UnauthorizedError('E-mail ou senha inválidos');
 
     if (user.role !== 'AGENT' && user.role !== 'CLUB') {
-      throw new UnauthorizedError('Rota exclusiva para agentes e clubes');
+      throw new UnauthorizedError('Rota exclusiva para agências e clubes');
     }
 
     if (!user.emailVerified) {
