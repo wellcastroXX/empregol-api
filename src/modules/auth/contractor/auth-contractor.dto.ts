@@ -19,8 +19,13 @@ export const registerContractorSchema = z
     additionalInfo: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    if (data.type === 'AGENT' && !data.cpf) {
-      ctx.addIssue({ code: 'custom', path: ['cpf'], message: 'CPF é obrigatório para agências' });
+    if (data.type === 'AGENT') {
+      if (!data.cnpj) {
+        ctx.addIssue({ code: 'custom', path: ['cnpj'], message: 'CNPJ é obrigatório para agências' });
+      }
+      if (!data.companyName || data.companyName.trim().length < 2) {
+        ctx.addIssue({ code: 'custom', path: ['companyName'], message: 'Razão social é obrigatória para agências' });
+      }
     }
     if (data.type === 'CLUB' && !data.cnpj) {
       ctx.addIssue({ code: 'custom', path: ['cnpj'], message: 'CNPJ é obrigatório para clubes' });

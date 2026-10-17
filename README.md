@@ -16,6 +16,11 @@ npm run dev
 Tudo roda em container: PostgreSQL + API. Os dados do banco ficam em `./pgdata`
 (ou seja, dentro do repo — que deve estar no SSD Kingston).
 
+cd /project/empregol/backend
+git pull
+docker compose up -d --build
+docker compose logs -f api
+
 ### 1. Colocar o repo no servidor (no SSD Kingston)
 
 ```bash
