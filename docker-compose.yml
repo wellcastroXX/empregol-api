@@ -70,6 +70,38 @@ services:
       - "traefik.http.routers.empregol-api.rule=Host(`${API_DOMAIN:-api.empregolstartup.com.br}`) || Host(`api.empregol.co`)"
       - "traefik.http.services.empregol-api.loadbalancer.server.port=3000"
 
+  # Backup semanal do Postgres (pg_dump gzip). Guarda em ./backups e apaga
+  # dumps com mais de 60 dias (~8 semanas). Primeiro dump roda ao subir.
+  backup:
+    image: postgres:16-alpine
+    container_name: empregol-backup
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+    volumes:
+      - ./backups:/backups
+    entrypoint:
+      - sh
+      - -c
+      - |
+        echo "🗄  Backup semanal do empregol iniciado";
+        while true; do
+          FILE="/backups/empregol-$$(date +%Y%m%d-%H%M%S).sql.gz";
+          echo "⏳ Gerando $$FILE";
+          if pg_dump -h db -U ${POSTGRES_USER:-empregol} ${POSTGRES_DB:-empregol} | gzip > "$$FILE"; then
+            echo "✅ Backup OK: $$FILE";
+          else
+            echo "❌ Backup falhou"; rm -f "$$FILE";
+          fi;
+          find /backups -name "*.sql.gz" -mtime +60 -delete;
+          sleep 604800;
+        done
+    networks:
+      - empregol-net
+
 networks:
   empregol-net:
     driver: bridge

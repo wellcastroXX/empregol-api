@@ -12,6 +12,9 @@ pgdata/
 # Mídias enviadas (bind mount no servidor — não são código)
 uploads/
 
+# Backups do banco (pg_dump no servidor)
+backups/
+
 # Firebase Admin service account (SEGREDO — nunca commitar)
 *-firebase-adminsdk-*.json
 firebase-service-account.json
