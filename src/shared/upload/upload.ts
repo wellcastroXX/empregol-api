@@ -71,3 +71,22 @@ export function publicUrlFor(filename: string, subdir?: string): string {
   const prefix = subdir ? `${subdir}/` : '';
   return `${base}/uploads/${prefix}${filename}`;
 }
+
+/**
+ * Remove do disco os arquivos apontados por estas URLs públicas de `/uploads/`.
+ * Ignora links externos (YouTube etc.) e nunca lança — é best-effort, usado ao
+ * excluir conta pra não deixar arquivos órfãos acumulando.
+ */
+export function removeUploadedFiles(urls: (string | null | undefined)[]): void {
+  const base = path.resolve(uploadDir);
+  for (const url of urls) {
+    if (!url) continue;
+    const idx = url.indexOf('/uploads/');
+    if (idx === -1) continue; // link externo — não é nosso arquivo
+    const rel = url.slice(idx + '/uploads/'.length);
+    const file = path.resolve(base, rel);
+    // Segurança: só apaga dentro de uploadDir (evita path traversal).
+    if (file !== base && !file.startsWith(base + path.sep)) continue;
+    fs.promises.unlink(file).catch(() => undefined);
+  }
+}
