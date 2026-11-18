@@ -13,6 +13,15 @@ export class ContractorRepository {
     });
   }
 
+  /**
+   * Perfil que um atleta pode ver de um clube/agência.
+   *
+   * `phone` e `socialMedia` saíram daqui: esta rota é aberta a qualquer
+   * usuário autenticado, e o contato do contratante não é dado que o atleta
+   * precise ver — quem inicia conversa é o contratante. `cnpj`, `cpf` e
+   * `companyName` entram só para calcular o selo verificado e são descartados
+   * pelo service antes da resposta (ver `getBasicProfile`).
+   */
   async findBasicById(id: string) {
     return prisma.contractor.findUnique({
       where: { id },
@@ -20,11 +29,14 @@ export class ContractorRepository {
         id: true,
         type: true,
         name: true,
-        phone: true,
         companyName: true,
-        socialMedia: true,
         avatarUrl: true,
-        user: { select: { status: true, emailVerified: true } },
+        additionalInfo: true,
+        createdAt: true,
+        cnpj: true,
+        cpf: true,
+        verificationBlocked: true,
+        user: { select: { status: true, emailVerified: true, lastActiveAt: true } },
       },
     });
   }

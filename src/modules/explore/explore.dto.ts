@@ -44,6 +44,11 @@ export const exploreQuerySchema = z.object({
   assistsMin:       z.coerce.number().int().min(0).optional(),
   minutesPlayedMin: z.coerce.number().int().min(0).optional(),
 
+  // ── Cadastro ─────────────────────────────────────────────────────────────────
+  // Só atletas cadastrados a partir desta data. Serve para "novos esta semana"
+  // ter um número de verdade em vez de reaproveitar o tamanho da página.
+  createdAfter: z.coerce.date().optional(),
+
   // ── Ordenação ────────────────────────────────────────────────────────────────
   orderBy:  z.enum(SORT_FIELDS).default('createdAt'),
   orderDir: z.enum(['asc', 'desc']).default('desc'),

@@ -4,7 +4,12 @@ import { UpdateAthleteDTO } from './athlete.dto';
 
 export class AthleteRepository {
   async findByUserId(userId: string) {
-    return prisma.athlete.findUnique({ where: { userId } });
+    return prisma.athlete.findUnique({
+      where: { userId },
+      // `_count` em vez da lista: o selo verificado só precisa saber se existe
+      // ao menos uma temporada cadastrada.
+      include: { _count: { select: { seasonStats: true } } },
+    });
   }
 
   /** A vitrine pública é anônima: devolve só o que pode ser exibido a qualquer um. */
@@ -91,6 +96,10 @@ export class AthleteRepository {
         sportsProfileUrl: true,
         additionalInfo: true,
         createdAt: true,
+        // Entram na conta do selo verificado (verification.util.ts).
+        city: true,
+        state: true,
+        verificationBlocked: true,
         goals: true,
         assists: true,
         gamesThisSeason: true,

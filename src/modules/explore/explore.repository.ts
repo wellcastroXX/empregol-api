@@ -1,6 +1,10 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '../../database/prisma';
 import { ExploreQueryDTO, ContractorQueryDTO } from './explore.dto';
+import {
+  athleteVerification,
+  contractorVerification,
+} from '../../shared/utils/verification.util';
 
 const CARD_SELECT = {
   id: true,
@@ -29,6 +33,8 @@ const CARD_SELECT = {
     take: 1,
   },
   createdAt: true,
+  // Entra no cálculo do selo verificado e é descartado por `enrichAthlete`.
+  verificationBlocked: true,
 } as const;
 
 export class ExploreRepository {
@@ -55,7 +61,18 @@ export class ExploreRepository {
     const [contractors, total] = await Promise.all([
       prisma.contractor.findMany({
         where,
-        select: { id: true, name: true, type: true, companyName: true, avatarUrl: true, createdAt: true },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          companyName: true,
+          avatarUrl: true,
+          createdAt: true,
+          // Só para o selo; não voltam na resposta.
+          cnpj: true,
+          cpf: true,
+          verificationBlocked: true,
+        },
         orderBy: { createdAt: 'desc' },
         skip,
         take: dto.limit,
@@ -64,7 +81,7 @@ export class ExploreRepository {
     ]);
 
     return {
-      contractors,
+      contractors: contractors.map(enrichContractor),
       total,
       page: dto.page,
       limit: dto.limit,
@@ -126,6 +143,7 @@ function buildWhere(dto: ExploreQueryDTO): Prisma.AthleteWhereInput {
   if (dto.dominantFoot) where.dominantFoot = dto.dominantFoot;
   if (dto.gender)       where.gender = dto.gender;
   if (dto.state)        where.state = { equals: dto.state, mode: 'insensitive' };
+  if (dto.createdAfter) where.createdAt = { gte: dto.createdAfter };
 
   // Age → birthDate range
   if (dto.ageMin || dto.ageMax) {
@@ -185,6 +203,18 @@ function buildOrderBy(field: string, dir: 'asc' | 'desc'): Prisma.AthleteOrderBy
   return map[field] ?? { createdAt: 'desc' };
 }
 
+/**
+ * Calcula o selo do contratante e descarta o que foi lido só para isso.
+ *
+ * `cnpj`/`cpf` nunca saem na listagem do Mercado: o atleta vê o selo, não o
+ * documento.
+ */
+function enrichContractor(contractor: any) {
+  const { verified } = contractorVerification(contractor);
+  const { cnpj, cpf, verificationBlocked, ...rest } = contractor;
+  return { ...rest, verified };
+}
+
 function enrichAthlete(athlete: any) {
   const age = athlete.birthDate
     ? Math.floor((Date.now() - new Date(athlete.birthDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
@@ -192,6 +222,17 @@ function enrichAthlete(athlete: any) {
 
   const isFavorited = Array.isArray(athlete.favoritedBy) && athlete.favoritedBy.length > 0;
 
-  const { birthDate, favoritedBy, ...rest } = athlete;
-  return { ...rest, age, isFavorited };
+  // `seasonStats` vem com `take: 1`, então o length só responde "tem alguma?",
+  // que é o suficiente para o selo.
+  const { verified } = athleteVerification({
+    avatarUrl: athlete.avatarUrl,
+    city: athlete.city,
+    state: athlete.state,
+    expectedSalary: athlete.expectedSalary,
+    verificationBlocked: athlete.verificationBlocked,
+    seasonStatsCount: athlete.seasonStats?.length ?? 0,
+  });
+
+  const { birthDate, favoritedBy, verificationBlocked, ...rest } = athlete;
+  return { ...rest, age, isFavorited, verified };
 }

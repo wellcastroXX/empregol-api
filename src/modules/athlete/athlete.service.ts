@@ -4,9 +4,38 @@ import { NotFoundError, ForbiddenError } from '../../shared/errors/app-error';
 import { publicUrlFor } from '../../shared/upload/upload';
 import { blockedUserIds } from '../moderation/moderation.service';
 import { ageFrom, uniqueSlug } from '../../shared/utils/slug.util';
+import { athleteVerification } from '../../shared/utils/verification.util';
 
 /** Termos, cláusula 3.2(d): menor de 18 fica nas configurações mais protetivas. */
 const MIN_PUBLIC_AGE = 18;
+
+/**
+ * Anexa o selo verificado ao atleta devolvido.
+ *
+ * Aceita tanto o registro completo (`_count.seasonStats`) quanto a projeção
+ * básica (`seasonStats` como lista), que é o que cada consulta traz.
+ */
+function withVerification<
+  T extends {
+    avatarUrl?: string | null;
+    city?: string | null;
+    state?: string | null;
+    expectedSalary?: unknown;
+    verificationBlocked?: boolean;
+    seasonStats?: unknown[];
+    _count?: { seasonStats: number };
+  },
+>(athlete: T) {
+  const { verified, complete, missing } = athleteVerification({
+    avatarUrl: athlete.avatarUrl,
+    city: athlete.city,
+    state: athlete.state,
+    expectedSalary: athlete.expectedSalary,
+    verificationBlocked: athlete.verificationBlocked,
+    seasonStatsCount: athlete._count?.seasonStats ?? athlete.seasonStats?.length ?? 0,
+  });
+  return { ...athlete, verified, verificationComplete: complete, verificationMissing: missing };
+}
 
 export class AthleteService {
   private readonly repo = new AthleteRepository();
@@ -36,16 +65,17 @@ export class AthleteService {
       const slug = await uniqueSlug(athlete.fullName, (candidate) =>
         this.repo.isSlugTaken(candidate),
       );
-      return this.repo.openShowcase(athlete.id, slug);
+      const opened = await this.repo.openShowcase(athlete.id, slug);
+      return withVerification({ ...opened, _count: athlete._count });
     }
 
-    return athlete;
+    return withVerification(athlete);
   }
 
   async getBasicProfile(id: string) {
     const athlete = await this.repo.findBasicById(id);
     if (!athlete) throw new NotFoundError('Atleta não encontrado');
-    return athlete;
+    return withVerification(athlete);
   }
 
   /**

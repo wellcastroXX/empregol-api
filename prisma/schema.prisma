@@ -170,6 +170,12 @@ model Athlete {
   city            String?
   state           String?
 
+  // Veto da administração sobre o selo verificado. O selo é automático: sai
+  // da completude do perfil (ver `shared/utils/verification.util.ts`). Esta
+  // coluna existe para a adm derrubar o selo de um atleta específico sem que
+  // a próxima edição dele o devolva sozinho.
+  verificationBlocked Boolean        @default(false)
+
   socialMedia     String?
   sportsProfileUrl String?
   additionalInfo  String?
@@ -264,6 +270,10 @@ model Contractor {
   socialMedia    String?
   additionalInfo String?
   avatarUrl      String?
+
+  // Mesmo contrato do `Athlete.verificationBlocked`: selo automático pela
+  // completude, com veto da administração.
+  verificationBlocked Boolean    @default(false)
 
   profileViewsMade  ProfileView[]
   proposalsSent     Proposal[]      @relation("ContractorProposals")
